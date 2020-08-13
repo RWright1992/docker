@@ -1,0 +1,40 @@
+version: '3.7'
+services:
+  flask-app:
+    container_name: flask-app
+    image: flask-app
+    build: .
+    ports:
+    - target: 5000
+      published: 5000
+  enviornment:
+    USERNAME: ${USERNAME}
+    PASSWORD: ${PASSWORD}
+    MYSQL_URL: database:3306
+    MYSQL_DB: flaskapp
+    SECRET_KEY: ${SECRET_KEY}
+  database:
+    container_name: database
+    image: mysql:5.7
+    ports:
+    - target: 3306
+      published: 3306
+    enviornment:
+      MYSQL_ROOT_PASSWORD: ${PASSWORD}
+      MYSQL_DATABASE: flaskapp
+    volumes:
+    - type: volume
+      source: flask-app-data
+      target: /var/lib/mysql
+  nginx:
+    image: nginx:latest
+    ports:
+    - target: 80
+      published: 80
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: ./nginx/nginx.conf
+      target: /etc/nginx/nginx.conf
+volumes:
+  flask-app-data:
